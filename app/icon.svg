@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Rock Solid Fence">
+  <rect width="32" height="32" rx="8" fill="#E30613"/>
+  <g transform="translate(5 5)" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 20V6"/>
+    <path d="M8 20V6"/>
+    <path d="M14 20V6"/>
+    <path d="M20 20V6"/>
+    <path d="M1 10h20"/>
+    <path d="M1 14h20"/>
+    <path d="M2 6l2-3"/>
+    <path d="M8 6l2-3"/>
+    <path d="M14 6l2-3"/>
+    <path d="M20 6l1.5-2"/>
+  </g>
+</svg>
