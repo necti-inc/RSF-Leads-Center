@@ -4,7 +4,7 @@ import { normalizeStatus } from "./types"
 
 function getApiKey(): string {
     if (typeof window === "undefined") return ""
-    return localStorage.getItem(config.storageKey) || config.dashboardApiKey || ""
+    return localStorage.getItem(config.storageKey) || ""
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {

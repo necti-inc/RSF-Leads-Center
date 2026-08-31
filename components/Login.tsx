@@ -22,9 +22,15 @@ export default function Login({ onLogin }: LoginProps) {
         setError("")
 
         try {
-            const valid = await verifyApiKey(password.trim())
+            const entered = password.trim()
+            const apiKey =
+                entered === config.teamPassword && config.dashboardApiKey
+                    ? config.dashboardApiKey
+                    : entered
+
+            const valid = await verifyApiKey(apiKey)
             if (!valid) throw new Error()
-            login(password.trim())
+            login(apiKey)
             onLogin()
         } catch {
             setError("Incorrect password. Please try again.")
@@ -44,7 +50,7 @@ export default function Login({ onLogin }: LoginProps) {
                 <ul className="auth-features">
                     <li>Website & Facebook lead pipeline</li>
                     <li>One-tap call & text</li>
-                    <li>Estimates, notes & drawings</li>
+                    <li>Estimates, notes & follow-ups</li>
                 </ul>
             </div>
 

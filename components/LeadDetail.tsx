@@ -6,8 +6,6 @@ import { PIPELINE_STATUSES, STATUS_CONFIG } from "@/lib/types"
 import {
     updateLead,
     regenerateMessage,
-    uploadLeadAttachment,
-    deleteLeadAttachment,
 } from "@/lib/api"
 import {
     ensureGoogleMapsLoaded,
@@ -84,13 +82,11 @@ export default function LeadDetail({
     const [savingInfo, setSavingInfo] = useState(false)
     const [regenerating, setRegenerating] = useState(false)
     const [copied, setCopied] = useState(false)
-    const [uploading, setUploading] = useState(false)
     const [addressVerified, setAddressVerified] = useState(() => !!lead.homeaddress?.trim())
     const [addressFieldError, setAddressFieldError] = useState("")
     const [mapsLoadError, setMapsLoadError] = useState("")
 
     const addressInputRef = useRef<HTMLInputElement>(null)
-    const fileInputRef = useRef<HTMLInputElement>(null)
     const addressAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
     const addressSelectingRef = useRef(false)
     const addressFromListRef = useRef(!!lead.homeaddress?.trim())
@@ -328,44 +324,8 @@ export default function LeadDetail({
         }
     }
 
-    const handleUploadDrawing = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        e.target.value = ""
-        if (!file) return
-
-        if (file.size > 8 * 1024 * 1024) {
-            showToast("Drawing must be under 8MB")
-            return
-        }
-
-        setUploading(true)
-        try {
-            const updated = await uploadLeadAttachment(lead.id, file)
-            onUpdate(updated)
-            showToast("Drawing uploaded")
-        } catch {
-            showToast("Failed to upload drawing")
-        } finally {
-            setUploading(false)
-        }
-    }
-
-    const handleDeleteAttachment = async (attachmentId: string) => {
-        setUploading(true)
-        try {
-            const updated = await deleteLeadAttachment(lead.id, attachmentId)
-            onUpdate(updated)
-            showToast("Drawing removed")
-        } catch {
-            showToast("Failed to remove drawing")
-        } finally {
-            setUploading(false)
-        }
-    }
-
     const phoneDigits = lead.phonenumber.replace(/\D/g, "")
     const smsLink = `sms:${phoneDigits}${lead.generatedMessage ? `&body=${encodeURIComponent(lead.generatedMessage)}` : ""}`
-    const attachments = lead.attachments || []
 
     return (
         <>
@@ -575,69 +535,6 @@ export default function LeadDetail({
                         >
                             {savingInfo ? "Saving…" : "Save customer info"}
                         </button>
-                    </section>
-
-                    <section className="drawer-section">
-                        <h3 className="drawer-section__title">Drawings</h3>
-                        <p className="lead-edit-hint">
-                            Upload a site drawing, sketch, or photo (image or PDF, up to 8MB).
-                        </p>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*,application/pdf"
-                            hidden
-                            onChange={handleUploadDrawing}
-                        />
-                        <button
-                            type="button"
-                            className="btn btn-secondary btn-full"
-                            disabled={uploading}
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            {uploading ? "Uploading…" : "Upload drawing"}
-                        </button>
-                        {attachments.length > 0 && (
-                            <ul className="lead-attachments">
-                                {attachments.map((file) => (
-                                    <li key={file.id} className="lead-attachment">
-                                        {file.contentType?.startsWith("image/") ? (
-                                            <a
-                                                href={file.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="lead-attachment__preview"
-                                            >
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img src={file.url} alt={file.name} />
-                                            </a>
-                                        ) : (
-                                            <a
-                                                href={file.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="lead-attachment__file"
-                                            >
-                                                PDF
-                                            </a>
-                                        )}
-                                        <div className="lead-attachment__meta">
-                                            <a href={file.url} target="_blank" rel="noreferrer">
-                                                {file.name}
-                                            </a>
-                                            <button
-                                                type="button"
-                                                className="lead-attachment__remove"
-                                                disabled={uploading}
-                                                onClick={() => handleDeleteAttachment(file.id)}
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
                     </section>
 
                     {lead.generatedMessage && (

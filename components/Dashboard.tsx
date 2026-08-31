@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { fetchLeads, fetchLead, fetchStats, deleteLead, isAuthenticated, login, logout } from "@/lib/api"
+import { fetchLeads, fetchLead, fetchStats, deleteLead, isAuthenticated, logout } from "@/lib/api"
 import { config } from "@/lib/config"
 import { getFollowUpAlerts } from "@/lib/followups"
 import type { Lead, LeadStats } from "@/lib/types"
@@ -55,12 +55,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         setMounted(true)
-        if (config.dashboardApiKey) {
-            login(config.dashboardApiKey)
-            setAuthed(true)
-        } else {
-            setAuthed(isAuthenticated())
-        }
+        setAuthed(isAuthenticated())
 
         const leadId = new URLSearchParams(window.location.search).get("lead")
         if (leadId) pendingLeadIdRef.current = leadId
@@ -95,11 +90,7 @@ export default function Dashboard() {
             setStats(statsData)
         } catch (err) {
             if (err instanceof Error && err.message === "UNAUTHORIZED") {
-                if (config.dashboardApiKey) {
-                    login(config.dashboardApiKey)
-                } else {
-                    setAuthed(false)
-                }
+                setAuthed(false)
             }
         } finally {
             if (!options?.silent) setLoading(false)
@@ -265,18 +256,16 @@ export default function Dashboard() {
                     ))}
                 </nav>
 
-                {!config.dashboardApiKey && (
-                    <button
-                        className="sidebar__logout"
-                        onClick={() => {
-                            logout()
-                            setAuthed(false)
-                        }}
-                    >
-                        <IconLogout />
-                        Sign out
-                    </button>
-                )}
+                <button
+                    className="sidebar__logout"
+                    onClick={() => {
+                        logout()
+                        setAuthed(false)
+                    }}
+                >
+                    <IconLogout />
+                    Sign out
+                </button>
             </aside>
 
             <div className="main">
@@ -341,7 +330,7 @@ export default function Dashboard() {
                         >
                             {loading ? "…" : isMobile ? "↻" : "Refresh"}
                         </button>
-                        {isMobile && !config.dashboardApiKey && (
+                        {isMobile && (
                             <button
                                 className="topbar__logout-btn icon-btn"
                                 onClick={() => {
